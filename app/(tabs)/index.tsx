@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Alert,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
+  ScrollView,
+  Image
+} from 'react-native';
 import * as Location from 'expo-location';
 import { debounce } from 'lodash';
 import { styles } from '@/styles/routeFinder.styles';
@@ -65,7 +75,7 @@ export default function RouteFinderScreen() {
         `https://api.openrouteservice.org/geocode/reverse?api_key=${OPENROUTE_API_KEY}&point.lon=${location.coords.longitude}&point.lat=${location.coords.latitude}`
       );
       const data = await response.json();
-      
+
       if (data.features?.[0]) {
         setStartLocation(data.features[0].properties.label);
       }
@@ -96,15 +106,11 @@ export default function RouteFinderScreen() {
     try {
       // Get filtered routes from service
       const routes = await homeScreenService.getFilterRoutes(startLocation, endLocation);
-      // console.log('Fetched routes:', routes);
-      
+
       // Set available buses and show routes view
       setAvailableBuses(routes.routes);
       setShowBusRoutes(true);
-      console.log('Available buses:', availableBuses);
-      
-      // console.log(showBusRoutes);
-      
+
     } catch (error) {
       console.error('Error calculating route:', error);
       Alert.alert('Error', 'Failed to find available buses. Please try again.');
@@ -112,79 +118,91 @@ export default function RouteFinderScreen() {
       setIsLoading(false);
     }
   };
+
   return (
-    <View style={styles.container}>
-      {!showBusRoutes ? (
-        <View style={styles.glassContainer}>
-          {/* Route Finder UI */}
-          <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>Route Finder</Text>
-          </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F7F9FC' }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}>
 
-          <View style={styles.inputContainer}>
-            <LocationInput
-              placeholder="Enter start location"
-              value={startLocation}
-              onChangeText={(text) => {
-                setStartLocation(text);
-                debouncedSearch(text, true);
-              }}
-              onFocus={() => setActiveInput('start')}
-              showLocationButton
-              onLocationPress={handleUseCurrentLocation}
-              onClearPress={() => setStartLocation('')}
-            />
 
-            {activeInput === 'start' && searchResults.start.length > 0 && (
-              <SearchResults
-                results={searchResults.start}
-                onSelect={(result) => handleLocationSelect(result, true)}
+        {!showBusRoutes ? (
+          <View style={styles.glassContainer}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.appTitle}>CrowdSync</Text>
+              <Text style={styles.title}>Your journey, synchronized.</Text>
+            </View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.titleText}>Route Finder</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <LocationInput
+                placeholder="Enter start location"
+                value={startLocation}
+                onChangeText={(text) => {
+                  setStartLocation(text);
+                  debouncedSearch(text, true);
+                }}
+                onFocus={() => setActiveInput('start')}
+                showLocationButton
+                onLocationPress={handleUseCurrentLocation}
+                onClearPress={() => setStartLocation('')}
               />
-            )}
 
-            <LocationInput
-              placeholder="Enter destination"
-              value={endLocation}
-              onChangeText={(text) => {
-                setEndLocation(text);
-                debouncedSearch(text, false);
-              }}
-              onFocus={() => setActiveInput('end')}
-              onClearPress={() => setEndLocation('')}
-            />
-
-            {activeInput === 'end' && searchResults.end.length > 0 && (
-              <SearchResults
-                results={searchResults.end}
-                onSelect={(result) => handleLocationSelect(result, false)}
-              />
-            )}
-
-            <TouchableOpacity
-              style={[
-                styles.searchButton,
-                (!startLocation || !endLocation) && styles.searchButtonDisabled
-              ]}
-              onPress={handleSearch}
-              disabled={!startLocation || !endLocation || isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.searchButtonText}>Find Route</Text>
+              {activeInput === 'start' && searchResults.start.length > 0 && (
+                <SearchResults
+                  results={searchResults.start}
+                  onSelect={(result) => handleLocationSelect(result, true)}
+                />
               )}
-            </TouchableOpacity>
+
+              <LocationInput
+                placeholder="Enter destination"
+                value={endLocation}
+                onChangeText={(text) => {
+                  setEndLocation(text);
+                  debouncedSearch(text, false);
+                }}
+                onFocus={() => setActiveInput('end')}
+                onClearPress={() => setEndLocation('')}
+              />
+
+              {activeInput === 'end' && searchResults.end.length > 0 && (
+                <SearchResults
+                  results={searchResults.end}
+                  onSelect={(result) => handleLocationSelect(result, false)}
+                />
+              )}
+
+              <TouchableOpacity
+                style={[
+                  styles.searchButton,
+                  (!startLocation || !endLocation) && styles.searchButtonDisabled
+                ]}
+                onPress={handleSearch}
+                disabled={!startLocation || !endLocation || isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.searchButtonText}>Find Route</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      ) : (
-        <BusRoutesList
-        routes={availableBuses}
-        onBack={() => {
-          setShowBusRoutes(false);
-          setAvailableBuses([]); // Clear the routes when going back
-        }}
-        />
-      )}
-    </View>
+        ) : (
+          <BusRoutesList
+            routes={availableBuses}
+            onBack={() => {
+              setShowBusRoutes(false);
+              setAvailableBuses([]);
+            }}
+          />
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }

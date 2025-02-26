@@ -34,36 +34,7 @@ export default function RouteDetails() {
     fetchRouteDetails()
   }, [routeId])
 
-  // Set up interval for updating bus location (if applicable)
-  // useEffect(() => {
-  //   if (!routeDetails || routeDetails.status !== "IN_TRANSIT") {
-  //     return;
-  //   }
-
-  //   // const updateBusLocation = async () => {
-  //   //   try {
-  //   //     // Adjust this based on your actual API method
-  //   //     const updatedBusInfo = await homeScreenService.getBusLocation(routeDetails.busId);
-  //   //     if (tRouteDetails(prev => ({
-  //   //         ...prev,
-  //   //         bus: {
-  //   //           ...prev.bus,
-  //   //           current_latitude: updatedBusInfo.current_latitude,
-  //   //           current_longitude: updatedBusInfo.current_longitude
-  //   //       updatedBusInfo) {
-  //   //       se  }
-  //   //       }));
-  //   //     }
-  //   //   } catch (err) {
-  //   //     console.error("Error updating bus location:", err);
-  //   //   }
-  //   // };
-
-  //   // Update bus location every 10 seconds if the bus is in transit
-  //   // const intervalId = setInterval(updateBusLocation, 10000);
-
-  //   return () => clearInterval(intervalId);
-  // }, [routeDetails]);
+  
 
   if (loading) {
     return (
@@ -84,10 +55,7 @@ export default function RouteDetails() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Map Component */}
-      <View style={styles.mapContainer}>
-        {routeDetails && <MapComponent routeDetails={routeDetails} />}
-      </View>
+      
 
       {/* Route Details Card */}
       <View style={styles.card}>
@@ -121,6 +89,11 @@ export default function RouteDetails() {
           ))}
         </View>
       )}
+
+      {/* Map Component */}
+      <View style={styles.mapContainer}>
+        {routeDetails && <MapComponent routeDetails={routeDetails} />}
+      </View>
     </ScrollView>
   )
 }
