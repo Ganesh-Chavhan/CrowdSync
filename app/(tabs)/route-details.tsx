@@ -21,7 +21,7 @@ export default function RouteDetails() {
           return
         }
         const details = await homeScreenService.getBusDetails(routeId)
-        console.log(details);
+        // console.log(details);
 
         setRouteDetails(details?.route || details) // Adjust based on your API response
       } catch (err) {
@@ -33,8 +33,6 @@ export default function RouteDetails() {
     }
     fetchRouteDetails()
   }, [routeId])
-
-  
 
   if (loading) {
     return (
@@ -55,24 +53,23 @@ export default function RouteDetails() {
 
   return (
     <ScrollView style={styles.container}>
-      
-
       {/* Route Details Card */}
       <View style={styles.card}>
         <Text style={styles.title}>Route: {routeDetails.route_name}</Text>
-        <Text style={styles.info}>From: {routeDetails.start_location}</Text>
-        <Text style={styles.info}>To: {routeDetails.end_location}</Text>
         <Text style={styles.info}>Departure Time: {routeDetails.departure_time}</Text>
-        <Text style={{
-          ...styles.statusInfo,
-          color: routeDetails.status === 'active' ? '#4CAF50' :
-            routeDetails.status === 'IN_TRANSIT' ? '#FF9800' : '#757575'
-        }}>
-          Status: {routeDetails.status.charAt(0).toUpperCase() + routeDetails.status.slice(1)}
-        </Text>
         {routeDetails.bus && (
           <Text style={styles.info}>Bus Number: {routeDetails.bus.bus_number}</Text>
         )}
+      </View>
+
+      {/* Map Component */}
+      <View style={styles.mapContainer}>
+        {routeDetails && <MapComponent routeDetails={routeDetails} />}
+      </View>
+
+      {/* Distance */}
+      <View>
+        {/* Additional distance information can be added here */}
       </View>
 
       {/* Stops Card */}
@@ -89,11 +86,6 @@ export default function RouteDetails() {
           ))}
         </View>
       )}
-
-      {/* Map Component */}
-      <View style={styles.mapContainer}>
-        {routeDetails && <MapComponent routeDetails={routeDetails} />}
-      </View>
     </ScrollView>
   )
 }
@@ -104,7 +96,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   mapContainer: {
-    height: Dimensions.get('window').height * 0.4,
+    height: Dimensions.get('window').height * 0.45, // Increased height for better visibility
     margin: 16,
     borderRadius: 8,
     overflow: 'hidden',
