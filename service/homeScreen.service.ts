@@ -24,11 +24,12 @@ export class HomeScreenService {
   // private baseUrl = 'https://192.168.0.117:5000';
 
   async getFilterRoutes(startLocation:string , endLocation:string){
-     try {++
-        const response = await axios.post(`${this.baseUrl}/api/v1/user/route/filter`, {
-           startLocation: startLocation,
-           endLocation: endLocation
-        });
+     try {
+      const response = await axios.post(`${this.baseUrl}/api/v1/user/route/filter`, {
+        startLocation: startLocation,
+        endLocation: endLocation
+      });
+      
         return response.data;
      } catch (error) {
         console.error('Error fetching bus routes:', error);

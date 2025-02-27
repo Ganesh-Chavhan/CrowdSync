@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   
   // Map styling
   mapContainer: {
-    height: height * 0.4,
+    height: height * 0.6, // Increased from 0.4 to 0.5 (50% of screen height)
     marginHorizontal: 16,
     marginVertical: 12,
     borderRadius: 12,
@@ -143,6 +143,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 4,
+    // Added minimum height to ensure good appearance even on smaller devices
+    minHeight: 320,
   },
   
   // Card styling
