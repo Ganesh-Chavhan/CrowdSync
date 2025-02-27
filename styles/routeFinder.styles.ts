@@ -285,4 +285,32 @@ export const styles = StyleSheet.create({
     height: 40,
     marginRight: 10,
   },
+  adContainer: {
+    backgroundColor: "beige",
+    padding: 16,
+    margin: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  adTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  adImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  adText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  adCTA: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#d32f2f",
+  },
 });
