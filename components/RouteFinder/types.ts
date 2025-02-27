@@ -11,26 +11,34 @@ export interface SearchResult {
   coordinates: [number, number];
 }
 
+
 export interface RouteInfo {
   distance: number;
   duration: number;
 }
 
+export interface Bus {
+  bus_number: string;
+  capacity: number;
+  current_passenger_count: number;
+  features?: string[];
+  accessible?: boolean;
+}
+
 export interface BusRoute {
   id: string;
   route_name: string;
-  departure_time: string;
-  created_at: string;
   start_location: string;
   end_location: string;
-  status: string;
-  stops: {
-    latitude: number;
-    longitude: number;
-    name: string;
-  }[];
+  departure_time: string;
+  arrival_time: string;
+  status: 'On Time' | 'Delayed' | 'Cancelled';
+  bus: Bus;
+  stops?: string[];
+  distance?: string;
+  eta?: string;
+  price?: string;
 }
-
 export interface SearchResults {
   start: SearchResult[];
   end: SearchResult[];
