@@ -94,39 +94,51 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
     return R * c // Distance in km
   }
 
-  const getUserLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync()
-    if (status !== "granted") {
-      console.error("Permission to access location was denied")
-      return
-    }
-
-    const location = await Location.getCurrentPositionAsync({})
-    const { latitude, longitude } = location.coords
-    setUserLocation({ latitude, longitude })
-
-    // Inject JavaScript to add user marker
-    if (isMapReady && webViewRef.current) {
+  const updateUserMarker = () => {
+    if (isMapReady && webViewRef.current && userLocation) {
       const updateScript = `
         // Remove previous user marker
         if (window.userMarker) {
           map.removeLayer(window.userMarker);
         }
         // Add new user marker
-        window.userMarker = L.marker([${latitude}, ${longitude}], {
+        window.userMarker = L.marker([${userLocation.latitude}, ${userLocation.longitude}], {
           icon: userIcon
         }).addTo(map).bindPopup("Your Location");
         true;
       `
       webViewRef.current.injectJavaScript(updateScript)
-    }
 
-    if (currentLatitude && currentLongitude) {
-      const dist = calculateDistance(latitude, longitude, currentLatitude, currentLongitude)
-      setDistance(dist)
+      // Update distance calculation if bus location is available
+      if (currentLatitude && currentLongitude) {
+        const dist = calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          currentLatitude,
+          currentLongitude
+        )
+        setDistance(dist)
+      }
     }
   }
 
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync()
+      if (status !== "granted") {
+        console.error("Permission to access location was denied")
+        return
+      }
+
+      const location = await Location.getCurrentPositionAsync({})
+      const { latitude, longitude } = location.coords
+      setUserLocation({ latitude, longitude })
+    } catch (error) {
+      console.error("Error getting user location:", error)
+    }
+  }
+
+  // Effect for initial location and setting up bus location interval
   useEffect(() => {
     // Initial location check
     getUserLocation()
@@ -137,8 +149,14 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
     }, 4000)
 
     return () => clearInterval(interval)
-  }, [busId]) //Corrected useEffect dependency
+  }, [busId])
 
+  // Effect to update user marker whenever userLocation changes
+  useEffect(() => {
+    updateUserMarker()
+  }, [userLocation, isMapReady])
+
+  // Decode the polyline for the route
   const decodedCoords = decode(routeDetails.route_polyline).map((coord: [number, number]) => [coord[0], coord[1]])
 
   // Create the map HTML with improved interaction support
@@ -276,7 +294,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
           centerControl.onAdd = function(map) {
             var div = L.DomUtil.create('div', 'custom-control');
             div.innerHTML = '📍 Center on Bus';
-            div.style.fontSize = '14px';
+            div.style.fontSize = '10px';
             div.style.fontFamily = 'Arial, sans-serif';
             div.onclick = function() {
               map.setView([${currentLatitude}, ${currentLongitude}], 15);
@@ -284,6 +302,24 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
             return div;
           };
           centerControl.addTo(map);
+          
+          // Add custom control for centering on user (new)
+          var userCenterControl = L.control({ position: 'topright' });
+          userCenterControl.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'custom-control');
+            div.innerHTML = '📌 Center on Me';
+            div.style.fontSize = '10px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.marginTop = '10px';
+            div.onclick = function() {
+              if (window.userMarker) {
+                var latlng = window.userMarker.getLatLng();
+                map.setView([latlng.lat, latlng.lng], 15);
+              }
+            };
+            return div;
+          };
+          userCenterControl.addTo(map);
           
           // Send message when map is fully loaded
           map.whenReady(function() {
@@ -330,27 +366,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
       onTouchStart={onMapTouchStart}
       onTouchEnd={onMapTouchEnd}
     >
-      <TouchableOpacity style={styles.locationButton} onPress={getUserLocation}>
-        <Text style={styles.locationButtonText}>📍 Get Distance </Text>
-      </TouchableOpacity>
-      <View style={styles.controlsContainer}>
-        {distance !== null && 40 > 0 && (
-          <View style={styles.distanceBadge}>
-            <Text style={styles.distanceText}>
-              {distance < 1
-                ? `${Math.round(distance * 1000)} m to bus`
-                : `${distance.toFixed(1)} km to bus`}
-              {" • "}
-              {40 > 0
-                ? (distance / 40 >= 1
-                  ? `${(distance / 40).toFixed(1)} hr`
-                  : `${Math.round((distance / 40) * 60)} min to arrival`)
-                : "Calculating..."}
-            </Text>
-          </View>
-        )}
-
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.locationButton} onPress={getUserLocation}>
+          <Text style={styles.locationButtonText}>📍 Get Distance & Time</Text>
+        </TouchableOpacity>
       </View>
+
+
 
       <WebView
         ref={webViewRef}
@@ -379,7 +401,27 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
         mediaPlaybackRequiresUserAction={true}
         userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
       />
+
+      <View style={styles.controlsContainer}>
+        {distance !== null && 40 > 0 && (
+          <View style={styles.distanceBadge}>
+            <Text style={styles.distanceText}>
+              {distance < 1
+                ? `${Math.round(distance * 1000)} m to bus`
+                : `${distance.toFixed(1)} km to bus`}
+              {" • "}
+              {40 > 0
+                ? (distance / 40 >= 1
+                  ? `${(distance / 40).toFixed(1)} hr`
+                  : `${Math.round((distance / 40) * 60)} min to arrival`)
+                : "Calculating..."}
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
+
+
   )
 }
 
@@ -398,14 +440,22 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  buttonContainer: {
+    position: "fixed",
+    top: 0,
+    bottom: 20,
+    left: 5,
+    zIndex: 9,
+  },
   controlsContainer: {
-    position: "absolute",
-    top: 4,
+    position: "fixed",
+    top: 5,
+    bottom: 10,
     left: 10,
     right: 10,
     zIndex: 9,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
   },
   locationButton: {
@@ -424,12 +474,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   distanceBadge: {
+    marginBottom: 10,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 16,
-    marginLeft: 110,
-    marginBottom: 10,
   },
   distanceText: {
     color: "white",

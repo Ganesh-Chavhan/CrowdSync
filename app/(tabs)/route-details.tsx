@@ -112,6 +112,16 @@ export default function RouteDetails() {
 
   // Handle back navigation
   const handleBack = () => router.back()
+  
+  // Handle feedback navigation
+  const handleFeedback = () => {
+    if (routeId) {
+      router.push({
+        pathname: "/feedback/feedback-form",
+        params: { routeId: routeId }
+      })
+    }
+  }
 
   if (loading) {
     return (
@@ -282,6 +292,22 @@ export default function RouteDetails() {
             </View>
           </Animated.View>
         )}
+
+        {/* Feedback Button */}
+        <Animated.View
+          style={[
+            styles.feedbackButtonContainer,
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+          ]}
+        >
+          <TouchableOpacity 
+            style={styles.feedbackButton}
+            onPress={handleFeedback}
+          >
+            <Ionicons name="star-outline" size={20} color={styles.colors.surface} />
+            <Text style={styles.feedbackButtonText}>Submit Feedback</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
         {/* Advertisement Section */}
         {relevantAd && (
@@ -495,7 +521,7 @@ const styles = StyleSheet.create({
   },
 
   mapToggleButtonHidden: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: COLORS.primary,
   },
 
   mapToggleText: {
@@ -653,6 +679,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginRight: 4,
+  },
+
+  // Feedback button styling
+  feedbackButtonContainer: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+  },
+
+  feedbackButton: {
+    backgroundColor: COLORS.success,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: COLORS.shadowColor,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+
+  feedbackButtonText: {
+    color: COLORS.surface,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 8,
   },
 
   // Advertisement styling

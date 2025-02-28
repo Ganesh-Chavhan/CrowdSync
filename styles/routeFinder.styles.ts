@@ -287,6 +287,7 @@ export const createStyles = (theme: 'light' | 'dark') => {
     },
     busNumber: {
       fontSize: isSmallDevice ? 16 : 18,
+      marginTop: 4,
       marginBottom: 4,
       fontFamily: fontFamily.bold,
       color: currentColors.primary,
