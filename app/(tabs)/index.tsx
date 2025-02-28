@@ -19,7 +19,7 @@ import { BusRoutesList } from '@/components/RouteFinder/BusRoutesList';
 import { homeScreenService } from '@/service/homeScreen.service';
 import { SearchResult, SearchResults as SearchResultsType } from '@/components/RouteFinder/types';
 
-const OPENROUTE_API_KEY = '5b3ce3597851110001cf6248722fb2a1d50f47f38321dd66019aa89e';
+const OPENROUTE_API_KEY = '5b3ce3597851110001cf62488a2bb7e75c484e02b80b14b5c9f463d6';
 
 export default function RouteFinderScreen() {
   const [showBusRoutes, setShowBusRoutes] = useState(false);

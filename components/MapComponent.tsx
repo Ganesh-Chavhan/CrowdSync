@@ -42,7 +42,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
 
   const fetchBusDetails = async (busId: string) => {
     try {
-      const response = await fetch(`https://adcet-hackathon-backend.onrender.com/api/v1/user/bus/${busId}`)
+      const response = await fetch(`https://adcet-backend.onrender.com/api/v1/user/bus/${busId}`)
       if (!response.ok) {
         throw new Error("Network response was not ok")
       }
@@ -245,15 +245,15 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
           // Add stop markers
           var stopMarkers = [];
           ${routeDetails.stops.stops
-            .map(
-              (stop: any, index: number) => `
+      .map(
+        (stop: any, index: number) => `
               stopMarkers.push(L.marker([${stop.latitude}, ${stop.longitude}])
                 .addTo(map)
                 .bindPopup("${stop.name}")
               );
             `,
-            )
-            .join("")}
+      )
+      .join("")}
           
           // Add initial bus marker
           window.busMarker = L.marker([${currentLatitude}, ${currentLongitude}], {
@@ -325,23 +325,31 @@ const MapComponent: React.FC<MapComponentProps> = ({ routeDetails, onMapTouchSta
   }
 
   return (
-    <View 
-      style={styles.container} 
+    <View
+      style={styles.container}
       onTouchStart={onMapTouchStart}
       onTouchEnd={onMapTouchEnd}
     >
+      <TouchableOpacity style={styles.locationButton} onPress={getUserLocation}>
+        <Text style={styles.locationButtonText}>📍 Get Distance </Text>
+      </TouchableOpacity>
       <View style={styles.controlsContainer}>
-        <TouchableOpacity style={styles.locationButton} onPress={getUserLocation}>
-          <Text style={styles.locationButtonText}>📍 My Location</Text>
-        </TouchableOpacity>
-
-        {distance !== null && (
+        {distance !== null && 40 > 0 && (
           <View style={styles.distanceBadge}>
             <Text style={styles.distanceText}>
-              {distance < 1 ? `${Math.round(distance * 1000)} m to bus` : `${distance.toFixed(1)} km to bus`}
+              {distance < 1
+                ? `${Math.round(distance * 1000)} m to bus`
+                : `${distance.toFixed(1)} km to bus`}
+              {" • "}
+              {40 > 0
+                ? (distance / 40 >= 1
+                  ? `${(distance / 40).toFixed(1)} hr`
+                  : `${Math.round((distance / 40) * 60)} min to arrival`)
+                : "Calculating..."}
             </Text>
           </View>
         )}
+
       </View>
 
       <WebView
@@ -392,10 +400,10 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     position: "absolute",
-    top: 10,
+    top: 4,
     left: 10,
     right: 10,
-    zIndex: 999,
+    zIndex: 9,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -417,9 +425,11 @@ const styles = StyleSheet.create({
   },
   distanceBadge: {
     backgroundColor: "rgba(0, 0, 0, 0.7)",
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 16,
+    marginLeft: 110,
+    marginBottom: 10,
   },
   distanceText: {
     color: "white",

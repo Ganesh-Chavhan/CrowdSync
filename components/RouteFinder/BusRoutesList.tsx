@@ -15,7 +15,7 @@ export const BusRoutesList: React.FC<BusRoutesListProps> = ({ routes, onBack, th
   
   return (
     <View style={styles.busRoutesContainer}>
-      <View style={styles.busRoutesHeader}>
+      <View style={[styles.busRoutesHeader, { paddingVertical: 12 }]}>
         <TouchableOpacity 
           style={styles.backButton}
           onPress={onBack}
@@ -29,7 +29,7 @@ export const BusRoutesList: React.FC<BusRoutesListProps> = ({ routes, onBack, th
         data={routes}
         renderItem={({ item, index }) => <BusRouteCard route={item} theme={theme} index={index} />}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.busRoutesList}
+        contentContainerStyle={[styles.busRoutesList, { paddingVertical: 8 }]}
         showsVerticalScrollIndicator={false}
       />
     </View>

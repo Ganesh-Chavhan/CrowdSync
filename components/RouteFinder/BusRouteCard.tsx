@@ -112,138 +112,103 @@ export const BusRouteCard: React.FC<BusRouteCardProps> = ({ route, theme = 'ligh
   const etaText = route.eta ? `${route.eta} min` : 'On schedule'
 
   return (
-    <Pressable 
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      onPress={handleViewDetails}
-      style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}
+    <Animated.View 
+      style={[
+        styles.busRouteContainer, 
+        { 
+          opacity: fadeAnim,
+          transform: [
+            { scale: scaleAnim }
+          ]
+        }
+      ]}
     >
-      <Animated.View 
-        style={[
-          styles.busRouteContainer, 
-          { 
-            opacity: fadeAnim,
-            transform: [
-              { scale: scaleAnim },
-              { scale: pressAnim }
-            ]
-          }
-        ]}
-      >
-        {/* Status badge - new */}
-        <View style={[
-          styles.statusChip, 
-          { 
-            backgroundColor: route.status === 'On Time' 
-              ? theme === 'dark' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)' 
-              : theme === 'dark' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.1)' 
-          }
-        ]}>
-          <Feather 
-            name={route.status === 'On Time' ? "check-circle" : "alert-circle"} 
-            size={14} 
-            color={route.status === 'On Time' ? currentColors.success : currentColors.warning} 
-            style={{ marginRight: 6 }} 
-          />
-          <Text 
-            style={[
-              styles.statusText, 
-              { color: route.status === 'On Time' ? currentColors.success : currentColors.warning }
-            ]}
-          >
-            {route.status}
+      {/* Status badge - new */}
+      <View style={[
+        styles.statusChip, 
+        { 
+          backgroundColor: route.status === 'On Time' 
+            ? theme === 'dark' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)' 
+            : theme === 'dark' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.1)' 
+        }
+      ]}>
+        <Feather 
+          name={route.status === 'On Time' ? "check-circle" : "alert-circle"} 
+          size={14} 
+          color={route.status === 'On Time' ? currentColors.success : currentColors.warning} 
+          style={{ marginRight: 6 }} 
+        />
+        <Text 
+          style={[
+            styles.statusText, 
+            { color: route.status === 'On Time' ? currentColors.success : currentColors.warning }
+          ]}
+        >
+          {route.status}
+        </Text>
+      </View>
+
+      <View style={styles.busHeader}>
+        <View style={styles.row}>
+          <View style={{ marginLeft: 12 }}>
+            <Text style={[styles.busNumber]}>{route.route_name}</Text>
+            <Text style={[styles.routeText, { marginTop: 2, marginBottom: 0 }]}>
+              Bus: {route.bus.bus_number}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      
+
+      <View style={styles.timeContainer}>
+        <View style={[styles.row, { justifyContent: 'space-between' }]}>
+          <View style={styles.row}>
+            <Feather name="clock" size={14} color={theme === 'dark' ? currentColors.success : currentColors.primary} style={{ marginRight: 6 }} />
+            <Text style={styles.timeText}>Departure Time : {route.departure_time}</Text>
+          </View>
+          
+          
+        </View>
+      </View>
+
+      {/* Occupancy section - improved */}
+      <View style={[styles.routeInfo, { marginTop: 12 }]}>
+        <View style={[styles.row, styles.spaceBetween]}>
+          <Text style={[styles.sectionTitle]}>Current Occupancy</Text>
+          <Text style={[styles.badge, { backgroundColor: 'transparent' }]}>
+            <Text style={{ color: crowdColor, fontWeight: '600' }}>{percentage}</Text>
           </Text>
         </View>
-
-        <View style={styles.busHeader}>
-          <View style={styles.row}>
-            <View style={[styles.avatar, { backgroundColor: currentColors.primary }]}>
-              <Text style={styles.avatarText}>{route.route_name.charAt(0)}</Text>
-            </View>
-            <View style={{ marginLeft: 12 }}>
-              <Text style={[styles.busNumber]}>{route.route_name}</Text>
-              <Text style={[styles.routeText, { marginTop: 2, marginBottom: 0 }]}>
-                Bus: {route.bus.bus_number}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Route visualization - improved */}
-        <View style={styles.routeLocations}>
-          <View style={styles.locationIndicator}>
-            <View style={styles.startDot} />
-            <View style={styles.routeLine} />
-            <View style={styles.endDot} />
-          </View>
-          <View style={styles.locationTexts}>
-            <Text style={styles.startLocationText}>{route.start_location}</Text>
-            <Text style={styles.endLocationText}>{route.end_location}</Text>
-          </View>
-        </View>
-
-        <View style={styles.timeContainer}>
-          <View style={[styles.row, { justifyContent: 'space-between' }]}>
-            <View style={styles.row}>
-              <Feather name="clock" size={14} color={theme === 'dark' ? currentColors.success : currentColors.primary} style={{ marginRight: 6 }} />
-              <Text style={styles.timeText}>Departure: {route.departure_time}</Text>
-            </View>
-            
-            <View style={styles.row}>
-              <Feather name="trending-up" size={14} color={theme === 'dark' ? currentColors.success : currentColors.primary} style={{ marginRight: 6 }} />
-              <Text style={styles.timeText}>ETA: {etaText}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Occupancy section - improved */}
-        <View style={[styles.routeInfo, { marginTop: 12 }]}>
-          <View style={[styles.row, styles.spaceBetween]}>
-            <Text style={[styles.sectionTitle]}>Current Occupancy</Text>
-            <Text style={[styles.badge, { backgroundColor: 'transparent' }]}>
-              <Text style={{ color: crowdColor, fontWeight: '600' }}>{percentage}</Text>
-            </Text>
-          </View>
-          
-          <View style={styles.progressBar}>
-            <Animated.View 
-              style={[
-                progressStyle, 
-                { 
-                  width: progressAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%']
-                  })
-                }
-              ]} 
-            />
-          </View>
-          
-          <View style={[styles.crowdIndicator, crowdStyle, styles.row]}>
-            <Feather 
-              name={occupancyRate >= 80 ? "users" : occupancyRate >= 40 ? "user-plus" : "user"} 
-              size={14} 
-              color={crowdColor} 
-              style={{ marginRight: 6 }} 
-            />
-            <Text style={{ color: crowdColor, fontWeight: '500' }}>
-              {crowdStatus} Crowd Level
-            </Text>
-          </View>
-        </View>
         
-        {/* View details button - new style */}
-        <TouchableOpacity
-          onPress={handleViewDetails}
-          style={[styles.detailsButton, { marginTop: 16, alignSelf: 'center' }]}
-          activeOpacity={0.7}
-        >
-          <View style={styles.buttonWithIcon}>
-            <Text style={styles.detailsButtonText}>View Details</Text>
-            <Feather name="arrow-right" size={14} color="#FFFFFF" />
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    </Pressable>
+        
+        
+        <View style={[styles.crowdIndicator, crowdStyle, styles.row]}>
+          <Feather 
+            name={occupancyRate >= 80 ? "users" : occupancyRate >= 40 ? "user-plus" : "user"} 
+            size={14} 
+            color={crowdColor} 
+            style={{ marginRight: 6 }} 
+          />
+          <Text style={{ color: crowdColor, fontWeight: '500' }}>
+            {crowdStatus} Crowd Level
+          </Text>
+        </View>
+      </View>
+      
+      {/* View details button - new style */}
+      <TouchableOpacity
+        onPress={handleViewDetails}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[styles.detailsButton, { marginTop: 16, alignSelf: 'center' }]}
+        activeOpacity={0.7}
+      >
+        <View style={styles.buttonWithIcon}>
+          <Text style={styles.detailsButtonText}>View Details</Text>
+          <Feather name="arrow-right" size={14} color="#FFFFFF" />
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   )
 }
